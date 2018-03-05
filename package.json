@@ -1,0 +1,12 @@
+{
+  "name": "cloudbuild-github-status",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Avantsoft",
+  "license": "MIT",
+  "dependencies": {
+    "@octokit/rest": "^14.0.9",
+    "git-url-parse": "^8.1.0",
+    "googleapis": "^27.0.0"
+  }
+}
