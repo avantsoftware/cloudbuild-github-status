@@ -29,15 +29,18 @@ module.exports.subscribe = (event, callback) => {
   //   }
   // };
   const build = eventToBuild(event.data.data);
-
+  console.log(build);
   // Return if it's not a source repo
-  if (!build.source.repoName) {
+  console.log(build.sourceProvenance.resolvedRepoSource);
+  if (!build.sourceProvenance.resolvedRepoSource) {
+    console.log("Not a build from a repo. Exiting.");
     return callback();
   }
+  const source = build.sourceProvenance.resolvedRepoSource;
 
-  // Get original repo
   google.auth.getApplicationDefault(function(err, authClient, projectId) {
     if (err) {
+      console.log("Can't authenticate. Exiting.");
       throw err;
     }
 
@@ -49,6 +52,7 @@ module.exports.subscribe = (event, callback) => {
       ]);
     }
 
+    // Get original repo
     console.log("Accessing Source Repositories...");
     google
       .sourcerepo({
@@ -57,9 +61,7 @@ module.exports.subscribe = (event, callback) => {
       })
       .projects.repos.get(
         {
-          name: `projects/${build.source.projectId}/repos/${
-            build.source.repoName
-          }`
+          name: `projects/${source.projectId}/repos/${source.repoName}`
         },
         function(err, data) {
           if (err) {
@@ -69,14 +71,13 @@ module.exports.subscribe = (event, callback) => {
           const repo = data.data;
           // Check if there's a mirror config
           if (!(repo.mirrorConfig && repo.mirrorConfig.url)) {
+            console.log("No mirrorConfig for github present. Exiting.");
             return callback();
           }
           // Get url
           const { owner, name } = GitUrlParse(repo.mirrorConfig.url);
-          const ref =
-            build.source.branchName ||
-            build.source.tagName ||
-            build.source.commitSha;
+
+          const ref = source.branchName || source.tagName || source.commitSha;
 
           console.log(
             `Repo info:\nOwner: ${owner}\nRepo: ${name}\nRef: ${ref}`
