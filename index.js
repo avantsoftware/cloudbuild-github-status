@@ -31,7 +31,6 @@ module.exports.subscribe = (event, callback) => {
   const build = eventToBuild(event.data.data);
   console.log(build);
   // Return if it's not a source repo
-  console.log(build.sourceProvenance.resolvedRepoSource);
   if (!build.sourceProvenance.resolvedRepoSource) {
     console.log("Not a build from a repo. Exiting.");
     return callback();
@@ -40,7 +39,6 @@ module.exports.subscribe = (event, callback) => {
 
   google.auth.getApplicationDefault(function(err, authClient, projectId) {
     if (err) {
-      console.log("Can't authenticate. Exiting.");
       throw err;
     }
 
